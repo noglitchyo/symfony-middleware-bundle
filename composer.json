@@ -1,0 +1,41 @@
+{
+  "name": "noglitchyo/symfony-middleware-bundle",
+  "description": "Enhance your Symfony application with the power of PSR-15 middleware!",
+  "type": "symfony-bundle",
+  "keywords": [
+    "http",
+    "psr-15",
+    "psr-7",
+    "http-message",
+    "middleware",
+    "handler",
+    "bridge"
+  ],
+  "require": {
+    "php": ">=7.3",
+    "psr/http-server-middleware": "^1.0.0",
+    "symfony/http-foundation": "^3.4 || ^4.0",
+    "symfony/event-dispatcher": "^4.3",
+    "symfony/psr-http-message-bridge": "^1.2",
+    "symfony/http-kernel": "^4.3",
+    "symfony/dependency-injection": "^4.3",
+    "symfony/config": "^4.3",
+    "noglitchyo/middleware-collection-request-handler": "*"
+  },
+  "authors": [
+    {
+      "name": "Maxime ELOMARI",
+      "email": "maxime.elomari@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "NoGlitchYo\\MiddlewareBundle\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "NoGlitchYo\\MiddlewareBundle\\Tests\\": "Tests/"
+    }
+  }
+}
