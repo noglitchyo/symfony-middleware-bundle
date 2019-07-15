@@ -2,7 +2,9 @@
 
 namespace NoGlitchYo\MiddlewareBundle;
 
+use NoGlitchYo\MiddlewareBundle\DependencyInjection\Compiler\AddCollectionPass;
 use NoGlitchYo\MiddlewareBundle\DependencyInjection\NoGlitchYoMiddlewareExtension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class NoGlitchYoMiddlewareBundle extends Bundle
@@ -13,5 +15,10 @@ class NoGlitchYoMiddlewareBundle extends Bundle
             $this->extension = new NoGlitchYoMiddlewareExtension();
         }
         return $this->extension;
+    }
+
+    public function build(ContainerBuilder $container)
+    {
+        $container->addCompilerPass(new AddCollectionPass());
     }
 }

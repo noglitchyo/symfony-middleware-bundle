@@ -21,29 +21,32 @@ class MiddlewareDispatcher
             return RequestHandler::fromCallable($controller, $this->getHandler($controller));
         }
 
-
+        return $controller;
     }
 
-    public function always(MiddlewareCollectionInterface $collection = null): MiddlewareCollectionInterface
+    public function always(MiddlewareCollectionInterface $collection): MiddlewareCollectionInterface
     {
-        if ($collection === null) {
-            $collection = $this->middlewareCollectionFactory->create();
-        }
-
         // TODO: it needs to be merged
         $this->middlewareCollections['*'][] = $collection;
 
         return $collection;
     }
 
+    public function onPath(
+        string $routePath,
+        MiddlewareCollectionInterface $collection
+    ): MiddlewareCollectionInterface
+    {
+        $this->middlewareCollections['routes'][$routePath] = $collection;
+
+        return $this->middlewareCollections['routes'][$routePath];
+    }
+
     public function onRoute(
         string $routeName,
-        MiddlewareCollectionInterface $collection = null
-    ): MiddlewareCollectionInterface {
-        if ($collection === null) {
-            $collection = $this->middlewareCollectionFactory->create();
-        }
-
+        MiddlewareCollectionInterface $collection
+    ): MiddlewareCollectionInterface
+    {
         $this->middlewareCollections['routes'][$routeName] = $collection;
 
         return $this->middlewareCollections['routes'][$routeName];
@@ -51,14 +54,11 @@ class MiddlewareDispatcher
 
     public function onHandler(
         string $handler,
-        MiddlewareCollectionInterface $collection = null
-    ): MiddlewareCollectionInterface {
+        MiddlewareCollectionInterface $collection
+    ): MiddlewareCollectionInterface
+    {
         if (!is_subclass_of($handler, RequestHandlerInterface::class, true)) {
             throw new InvalidArgumentException('$handler must be an instance of ' . RequestHandlerInterface::class);
-        }
-
-        if ($collection === null) {
-            $collection = $this->middlewareCollectionFactory->create();
         }
 
         $identifier = is_string($handler) ? $handler : get_class($handler);

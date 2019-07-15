@@ -23,6 +23,5 @@ services:
 
   NoGlitchYo\MiddlewareBundle\MiddlewareConfigurator:
     arguments:
-      $middlewareCollections: !tagged middlewares.collection
-      $handlers: '%middlewares.handlers%'
+      $handlers: !tagged middlewares.handler_configuration
 

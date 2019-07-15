@@ -7,45 +7,38 @@ use NoGlitchYo\MiddlewareCollectionRequestHandler\MiddlewareCollectionInterface;
 class MiddlewareConfigurator
 {
     /**
-     * @var MiddlewareCollectionInterface[]
+     * @var HandlerConfigurationInterface[]
      */
-    private $middlewareCollections;
+    private $handlerConfigurations;
 
-    /**
-     * @var array
-     */
-    private $handlers;
-
-    public function __construct(iterable $middlewareCollections, array $handlers)
+    public function __construct(iterable $handlers)
     {
-        $this->handlers              = $handlers;
-        foreach ($middlewareCollections as $collection) {
-            $this->middlewareCollections[] = $collection;
-        }
+        $this->handlerConfigurations = $handlers;
     }
 
     public function __invoke(MiddlewareDispatcher $middlewareDispatcher)
     {
-        foreach ($this->handlers as $handlerConfiguration) {
-//            $collectionIdentifier = $handlerConfiguration['collection'];
-//            $middlewareCollection = $this->middlewareCollections[$collectionIdentifier];
-            $middlewareCollection = $this->middlewareCollections[0];
+        foreach ($this->handlerConfigurations as $handlerConfiguration) {
+            $middlewareCollection = $handlerConfiguration->getCollection();
 
 
-            if (isset($handlerConfiguration['filter'])) {
-                $filter = $handlerConfiguration['filter'];
-                //                        if (isset($filter['routeName'])) {
-                //                            $this->middlewareConfigurator->onRoute();
-                //                        }
-                if (isset($filter['routePath'])) {
+            if ($handlerConfiguration->getFilter()) {
+                $filter = $handlerConfiguration->getFilter();
+                if ($filter->getRouteName()) {
                     $middlewareDispatcher->onRoute(
-                        $filter['routePath'],
+                        $filter->getRoutePath(),
                         $middlewareCollection
                     );
                 }
-                if (isset($filter['controller'])) {
+                if ($filter->getRoutePath()) {
+                    $middlewareDispatcher->onPath(
+                        $filter->getRoutePath(),
+                        $middlewareCollection
+                    );
+                }
+                if ($filter->getController()) {
                     $middlewareDispatcher->onHandler(
-                        $filter['controller'],
+                        $filter->getController(),
                         $middlewareCollection
                     );
                 }
@@ -53,6 +46,5 @@ class MiddlewareConfigurator
                 $middlewareDispatcher->always($middlewareCollection);
             }
         }
-
     }
 }
