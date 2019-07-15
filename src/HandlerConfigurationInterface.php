@@ -15,7 +15,10 @@ interface HandlerConfigurationInterface
 
     public function getCollection(): MiddlewareCollectionInterface;
 
-    public function setFilter(Filter $filter): self;
+    public function addFilter(Filter $filter): self;
 
-    public function getFilter(): Filter;
+    /**
+     * @return Filter[]
+     */
+    public function getFilters(): array;
 }

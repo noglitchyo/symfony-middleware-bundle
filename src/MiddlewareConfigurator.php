@@ -2,8 +2,6 @@
 
 namespace NoGlitchYo\MiddlewareBundle;
 
-use NoGlitchYo\MiddlewareCollectionRequestHandler\MiddlewareCollectionInterface;
-
 class MiddlewareConfigurator
 {
     /**
@@ -21,29 +19,30 @@ class MiddlewareConfigurator
         foreach ($this->handlerConfigurations as $handlerConfiguration) {
             $middlewareCollection = $handlerConfiguration->getCollection();
 
-
-            if ($handlerConfiguration->getFilter()) {
-                $filter = $handlerConfiguration->getFilter();
-                if ($filter->getRouteName()) {
-                    $middlewareDispatcher->onRoute(
-                        $filter->getRoutePath(),
-                        $middlewareCollection
-                    );
-                }
-                if ($filter->getRoutePath()) {
-                    $middlewareDispatcher->onPath(
-                        $filter->getRoutePath(),
-                        $middlewareCollection
-                    );
-                }
-                if ($filter->getController()) {
-                    $middlewareDispatcher->onHandler(
-                        $filter->getController(),
-                        $middlewareCollection
-                    );
+            if (!empty($handlerConfiguration->getFilters())) {
+                $filters = $handlerConfiguration->getFilters();
+                foreach ($filters as $filter) {
+                    if ($filter->getRouteName()) {
+                        $middlewareDispatcher->onRouteNameRun(
+                            $filter->getRoutePath(),
+                            $middlewareCollection
+                        );
+                    }
+                    if ($filter->getRoutePath()) {
+                        $middlewareDispatcher->onRoutePathRun(
+                            $filter->getRoutePath(),
+                            $middlewareCollection
+                        );
+                    }
+                    if ($filter->getController()) {
+                        $middlewareDispatcher->onHandlerRun(
+                            $filter->getController(),
+                            $middlewareCollection
+                        );
+                    }
                 }
             } else {
-                $middlewareDispatcher->always($middlewareCollection);
+                $middlewareDispatcher->alwaysRun($middlewareCollection);
             }
         }
     }

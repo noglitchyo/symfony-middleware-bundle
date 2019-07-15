@@ -5,20 +5,22 @@ namespace NoGlitchYo\MiddlewareBundle;
 use NoGlitchYo\MiddlewareBundle\Entity\HandlerConfiguration\Filter;
 use NoGlitchYo\MiddlewareCollectionRequestHandler\MiddlewareCollectionInterface;
 
-class HandlerConfiguration implements HandlerConfigurationInterface{
-
+class HandlerConfiguration implements HandlerConfigurationInterface
+{
     /**
      * @var string
      */
     private $identifier;
+
     /**
      * @var MiddlewareCollectionInterface
      */
     private $collection;
+
     /**
-     * @var Filter
+     * @var Filter[]
      */
-    private $filter;
+    private $filters = [];
 
     public function setIdentifier(string $identifier): HandlerConfigurationInterface
     {
@@ -44,15 +46,15 @@ class HandlerConfiguration implements HandlerConfigurationInterface{
         return $this->collection;
     }
 
-    public function setFilter(Filter $filter): HandlerConfigurationInterface
+    public function addFilter(Filter $filter): HandlerConfigurationInterface
     {
-        $this->filter = $filter;
+        $this->filters[] = $filter;
 
         return $this;
     }
 
-    public function getFilter(): Filter
+    public function getFilters(): array
     {
-        return $this->filter;
+        return $this->filters;
     }
-};
+}

@@ -3,56 +3,111 @@
 namespace NoGlitchYo\MiddlewareBundle;
 
 use InvalidArgumentException;
+use NoGlitchYo\MiddlewareBundle\Factory\MiddlewareCollectionFactory;
 use NoGlitchYo\MiddlewareCollectionRequestHandler\MiddlewareCollectionInterface;
 use NoGlitchYo\MiddlewareCollectionRequestHandler\RequestHandler;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 class MiddlewareDispatcher
 {
+    private const ON_HANDLER_INDEX = 'handlers';
+    private const ON_ROUTE_NAME_INDEX = 'routeNames';
+    private const ON_ROUTE_PATH_INDEX = 'routePaths';
+    private const ALWAYS_RUN_INDEX = '*';
+
     /**
      * @var MiddlewareCollectionInterface[]
      */
     private $middlewareCollections;
+    /**
+     * @var MiddlewareCollectionFactory
+     */
+    private $middlewareCollectionFactory;
 
-    public function dispatchController($controller): callable
+    public function __construct(MiddlewareCollectionFactory $middlewareCollectionFactory)
     {
-        if ($this->hasHandler($controller)) {
-
-            return RequestHandler::fromCallable($controller, $this->getHandler($controller));
-        }
-
-        return $controller;
+        $this->middlewareCollectionFactory = $middlewareCollectionFactory;
     }
 
-    public function always(MiddlewareCollectionInterface $collection): MiddlewareCollectionInterface
+    /**
+     * Middleware collection run order depends on the returned middleware collection factory
+     * TODO: we should be able to define priority for collection execution, like runBefore/runAfter/runLast/runFirst
+     * @param callable $controller
+     * @return callable
+     */
+    public function dispatch(callable $controller): callable
     {
-        // TODO: it needs to be merged
-        $this->middlewareCollections['*'][] = $collection;
+        $finalMiddlewareCollection = $this->middlewareCollectionFactory->create();
+
+        // run the middleware collections who must always be run
+        foreach ($this->getAlwaysRunCollection() as $middlewareCollection) {
+            $finalMiddlewareCollection->add(new RequestHandler($middlewareCollection));
+        }
+
+        // run collections only for controller
+        if ($this->hasControllerRequestHandler($controller)) {
+            $finalMiddlewareCollection->add($this->getControllerRequestHandler($controller));
+        }
+
+        return RequestHandler::fromCallable($controller, $finalMiddlewareCollection);
+    }
+
+    /**
+     * Always run the given middleware collection
+     *
+     * @param MiddlewareCollectionInterface $collection
+     * @return MiddlewareCollectionInterface
+     */
+    public function alwaysRun(MiddlewareCollectionInterface $collection): MiddlewareCollectionInterface
+    {
+        $this->middlewareCollections[self::ALWAYS_RUN_INDEX][] = $collection;
 
         return $collection;
     }
 
-    public function onPath(
+    /**
+     * Run the given middleware collection when the current route match the given route path
+     *
+     * @param string $routePath
+     * @param MiddlewareCollectionInterface $collection
+     * @return MiddlewareCollectionInterface
+     */
+    public function onRoutePathRun(
         string $routePath,
         MiddlewareCollectionInterface $collection
     ): MiddlewareCollectionInterface
     {
-        $this->middlewareCollections['routes'][$routePath] = $collection;
+        $this->middlewareCollections[self::ON_ROUTE_PATH_INDEX][$routePath] = $collection;
 
-        return $this->middlewareCollections['routes'][$routePath];
+        return $this->middlewareCollections[self::ON_ROUTE_PATH_INDEX][$routePath];
     }
 
-    public function onRoute(
+    /**
+     * Run the given middleware collection when the current route match the given route name
+     *
+     * @param string $routeName
+     * @param MiddlewareCollectionInterface $collection
+     * @return MiddlewareCollectionInterface
+     */
+    public function onRouteNameRun(
         string $routeName,
         MiddlewareCollectionInterface $collection
     ): MiddlewareCollectionInterface
     {
-        $this->middlewareCollections['routes'][$routeName] = $collection;
+        $this->middlewareCollections[self::ON_ROUTE_NAME_INDEX][$routeName] = $collection;
 
-        return $this->middlewareCollections['routes'][$routeName];
+        return $this->middlewareCollections[self::ON_ROUTE_NAME_INDEX][$routeName];
     }
 
-    public function onHandler(
+    /**
+     * Run the given middleware collection when the current request handler match the given handler class name
+     *
+     * @param string $handler
+     * @param MiddlewareCollectionInterface $collection
+     * @return MiddlewareCollectionInterface
+     */
+    public function onHandlerRun(
         string $handler,
         MiddlewareCollectionInterface $collection
     ): MiddlewareCollectionInterface
@@ -63,22 +118,32 @@ class MiddlewareDispatcher
 
         $identifier = is_string($handler) ? $handler : get_class($handler);
 
-        $this->middlewareCollections['handlers'][$identifier] = $collection;
+        $this->middlewareCollections[self::ON_HANDLER_INDEX][$identifier] = $collection;
 
-        return $this->middlewareCollections['handlers'][$identifier];
+        return $this->middlewareCollections[self::ON_HANDLER_INDEX][$identifier];
     }
 
-    public function hasHandler($handler): bool
+    public function hasControllerRequestHandler($handler): bool
     {
         $identifier = is_string($handler) ? $handler : get_class($handler);
 
-        return isset($this->middlewareCollections['handlers'][$identifier]);
+        return isset($this->middlewareCollections[self::ON_HANDLER_INDEX][$identifier]);
     }
 
-    public function getHandler($handler)
+    public function getOnHandlerRunCollection($handler): MiddlewareCollectionInterface
     {
         $identifier = is_string($handler) ? $handler : get_class($handler);
 
-        return $this->middlewareCollections['handlers'][$identifier];
+        return $this->middlewareCollections[self::ON_HANDLER_INDEX][$identifier];
+    }
+
+    public function getAlwaysRunCollection(): array
+    {
+        return $this->middlewareCollections[self::ALWAYS_RUN_INDEX] ?? [];
+    }
+
+    private function getControllerRequestHandler(callable $controller): MiddlewareInterface
+    {
+        return new RequestHandler($this->getOnHandlerRunCollection($controller));
     }
 }

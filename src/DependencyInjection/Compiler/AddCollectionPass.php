@@ -37,10 +37,6 @@ class AddCollectionPass implements CompilerPassInterface
 
         foreach ($handlersConfiguration as $handlerIdentifier => $handlerConfiguration) {
             $handlerConfigurationServiceId = sprintf('middlewares.handler_configuration.%s', $handlerIdentifier);
-            $handlerFilterServiceId        = sprintf(
-                'middlewares.handler_configuration_filter.%s',
-                $handlerIdentifier
-            );
 
             if (!isset($collectionReferences[$handlerConfiguration['collection']])) {
                 throw new RuntimeException(
@@ -51,20 +47,22 @@ class AddCollectionPass implements CompilerPassInterface
                 );
             }
 
-
-            $filterDefinition = $container->register($handlerFilterServiceId, Filter::class);
-
-            $filter = $handlerConfiguration['filter'];
-
-            $filterDefinition->addMethodCall('setRoutePath', [$filter['routePath'] ?? null]);
-            $filterDefinition->addMethodCall('setRouteName', [$filter['routeName'] ?? null]);
-            $filterDefinition->addMethodCall('setController', [$filter['controller'] ?? null]);
-
-            $container->register($handlerConfigurationServiceId, HandlerConfiguration::class)
+            $handlerDefinition = $container->register($handlerConfigurationServiceId, HandlerConfiguration::class)
                 ->addTag(static::HANDLER_CONFIGURATION_TAG)
                 ->addMethodCall('setIdentifier', [$handlerIdentifier])
-                ->addMethodCall('setCollection', [$collectionReferences[$handlerConfiguration['collection']]])
-                ->addMethodCall('setFilter', [new Reference($handlerFilterServiceId)]);
+                ->addMethodCall('setCollection', [$collectionReferences[$handlerConfiguration['collection']]]);
+
+            $filter = $handlerConfiguration['filter'] ?? null;
+
+            if ($filter) {
+                $handlerFilterServiceId = sprintf('middlewares.handler_configuration_filter.%s', $handlerIdentifier);
+                $container->register($handlerFilterServiceId, Filter::class)
+                    ->addMethodCall('setRoutePath', [$filter['routePath'] ?? null])
+                    ->addMethodCall('setRouteName', [$filter['routeName'] ?? null])
+                    ->addMethodCall('setController', [$filter['controller'] ?? null]);
+
+                $handlerDefinition->addMethodCall('addFilter', [new Reference($handlerFilterServiceId)]);
+            }
         }
     }
 }
