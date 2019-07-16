@@ -11,6 +11,13 @@ Feel free to contribute!
 - Improve the filter implementation so it can be extended
 - Documentation
 
+### Overview
+
+This bundle offers 2 implementations. The middleware stack can be used in 2 different ways:
+
+- by replacing the HttpKernel with the MiddlewareStackKernel
+- using the event dispatched by the HttpKernel
+
 ### Getting started
 
 #### Requirements
