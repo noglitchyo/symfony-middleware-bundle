@@ -23,6 +23,10 @@
     "noglitchyo/middleware-collection-request-handler": "*",
     "phpunit/phpunit": "^8.2"
   },
+  "provide": {
+    "psr/http-server-handler-implementation": "1.0",
+    "psr/http-server-middleware-implementation": "1.0"
+  },
   "authors": [
     {
       "name": "Maxime ELOMARI",
