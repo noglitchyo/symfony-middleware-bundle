@@ -20,7 +20,8 @@
     "symfony/http-kernel": "^4.3",
     "symfony/dependency-injection": "^4.3",
     "symfony/config": "^4.3",
-    "noglitchyo/middleware-collection-request-handler": "*"
+    "noglitchyo/middleware-collection-request-handler": "*",
+    "phpunit/phpunit": "^8.2"
   },
   "authors": [
     {

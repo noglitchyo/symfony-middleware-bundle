@@ -2,7 +2,6 @@
 
 namespace NoGlitchYo\MiddlewareBundle\Factory;
 
-
 use NoGlitchYo\MiddlewareCollectionRequestHandler\Collection\SplStackMiddlewareCollection;
 use NoGlitchYo\MiddlewareCollectionRequestHandler\MiddlewareCollectionInterface;
 

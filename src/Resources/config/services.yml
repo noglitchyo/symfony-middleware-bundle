@@ -17,11 +17,17 @@ services:
     resource: '../../*'
     exclude: '../{DependencyInjection,Entity,Migrations,Tests,Kernel.php,HttpKernel}'
 
-  NoGlitchYo\MiddlewareBundle\MiddlewareDispatcher:
-   # alias: NoGlitchYo\MiddlewareBundle\MiddlewareDispatcher
-    configurator: '@NoGlitchYo\MiddlewareBundle\MiddlewareConfigurator'
+ # NoGlitchYo\MiddlewareBundle\Middleware\Stack\MiddlewareStack: ~
 
-  NoGlitchYo\MiddlewareBundle\MiddlewareConfigurator:
+  # the ``App\Util\Rot13Transformer`` service will be injected when
+  # an ``App\Util\TransformerInterface`` type-hint is detected
+  NoGlitchYo\MiddlewareBundle\Middleware\Stack\MiddlewareStackInterface: '@middlewares.stack'
+
+  middlewares.stack:
+    class: NoGlitchYo\MiddlewareBundle\Middleware\Stack\MiddlewareStack
+    configurator: '@NoGlitchYo\MiddlewareBundle\MiddlewareStackConfigurator'
+
+  NoGlitchYo\MiddlewareBundle\MiddlewareStackConfigurator:
     arguments:
       $handlers: !tagged middlewares.handler_configuration
 

@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace NoGlitchYo\MiddlewareBundle;
+namespace NoGlitchYo\MiddlewareBundle\Entity;
 
-use NoGlitchYo\MiddlewareBundle\Entity\HandlerConfiguration\Filter;
 use NoGlitchYo\MiddlewareCollectionRequestHandler\MiddlewareCollectionInterface;
 
 interface HandlerConfigurationInterface
@@ -15,10 +14,10 @@ interface HandlerConfigurationInterface
 
     public function getCollection(): MiddlewareCollectionInterface;
 
-    public function addFilter(Filter $filter): self;
+    public function addCondition(HandlerCondition $filter): self;
 
     /**
-     * @return Filter[]
+     * @return HandlerCondition[]
      */
-    public function getFilters(): array;
+    public function getConditions(): array;
 }

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace NoGlitchYo\MiddlewareBundle\Entity\HandlerConfiguration;
+namespace NoGlitchYo\MiddlewareBundle\Entity;
 
-class Filter
+class HandlerCondition
 {
     /**
      * @var string|null

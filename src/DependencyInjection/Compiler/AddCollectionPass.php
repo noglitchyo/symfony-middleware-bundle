@@ -3,8 +3,8 @@
 namespace NoGlitchYo\MiddlewareBundle\DependencyInjection\Compiler;
 
 use LogicException;
-use NoGlitchYo\MiddlewareBundle\Entity\HandlerConfiguration\Filter;
-use NoGlitchYo\MiddlewareBundle\HandlerConfiguration;
+use NoGlitchYo\MiddlewareBundle\Entity\HandlerCondition;
+use NoGlitchYo\MiddlewareBundle\Entity\HandlerConfiguration;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\PriorityTaggedServiceTrait;
@@ -52,16 +52,16 @@ class AddCollectionPass implements CompilerPassInterface
                 ->addMethodCall('setIdentifier', [$handlerIdentifier])
                 ->addMethodCall('setCollection', [$collectionReferences[$handlerConfiguration['collection']]]);
 
-            $filter = $handlerConfiguration['filter'] ?? null;
+            $condition = $handlerConfiguration['filter'] ?? null;
 
-            if ($filter) {
+            if ($condition) {
                 $handlerFilterServiceId = sprintf('middlewares.handler_configuration_filter.%s', $handlerIdentifier);
-                $container->register($handlerFilterServiceId, Filter::class)
-                    ->addMethodCall('setRoutePath', [$filter['routePath'] ?? null])
-                    ->addMethodCall('setRouteName', [$filter['routeName'] ?? null])
-                    ->addMethodCall('setController', [$filter['controller'] ?? null]);
+                $container->register($handlerFilterServiceId, HandlerCondition::class)
+                    ->addMethodCall('setRoutePath', [$condition['routePath'] ?? null])
+                    ->addMethodCall('setRouteName', [$condition['routeName'] ?? null])
+                    ->addMethodCall('setController', [$condition['controller'] ?? null]);
 
-                $handlerDefinition->addMethodCall('addFilter', [new Reference($handlerFilterServiceId)]);
+                $handlerDefinition->addMethodCall('addCondition', [new Reference($handlerFilterServiceId)]);
             }
         }
     }
