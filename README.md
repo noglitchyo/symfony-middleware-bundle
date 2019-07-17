@@ -42,7 +42,7 @@ It will execute the middleware collection before passing the request to the cont
 #### 2) Create a middleware collection
 
 First, it is required to define a middleware collection. The middleware collection will, as states its name, contains all
-the middleware to execute. 
+the middleware to execute.
 
 For this purpose, this bundle rely on the middleware collection implementation from 
 [noglitchyo/middleware-collection-request-handler](https://github.com/noglitchyo/middleware-collection-request-handler)
@@ -57,7 +57,6 @@ which gives the ability to execute a collection of middlewares as if it was a si
   App\Middleware\SecurityMiddleware: ~
   App\Middleware\CorsMiddleware: ~
   App\Middleware\RouterMiddleware: ~
-  App\Middleware\EncoderMiddleware: ~
 
   middleware_collections.default:
     class: NoGlitchYo\MiddlewareCollectionRequestHandler\Collection\MiddlewareCollectionInterface 
@@ -68,7 +67,7 @@ which gives the ability to execute a collection of middlewares as if it was a si
         # NoGlitchYo\MiddlewareCollectionRequestHandler\Collection\SplStackMiddlewareCollection
     arguments:
       - ['@App\Middleware\EncoderMiddleware', '@App\Middleware\RouterMiddleware:', '@App\Middleware\EncoderMiddleware']
-    tags: ['middlewares.collection']
+    tags: ['middlewares.collection'] # Provide the following tag, so the collection can be picked up by the bundle
 ```
 
 #### 3) Define a middleware handler
@@ -92,7 +91,6 @@ middlewares:
       filter: # Filter is optional, if not provided the collection will be executed for every requests
         routePath: '/path/test/1'
         routeName: 'myCustomRouteName'
-        controller: 'App\Controller\SomeController' # Should be the class name
 ```
 
 #### Tests
