@@ -21,10 +21,11 @@ class Psr15MiddlewareListener implements EventSubscriberInterface
 
     public function onKernelController(ControllerEvent $event): void
     {
-        $controller = $event->getController();
-        $request    = $event->getRequest();
+        $controller = $this->middlewareStackHandler
+            ->withDefaultHandler($event->getController())
+            ->compile($event->getRequest());
 
-        $event->setController($this->middlewareStackHandler->getRequestHandler($request, $controller));
+        $event->setController($controller);
     }
 
     public static function getSubscribedEvents(): array

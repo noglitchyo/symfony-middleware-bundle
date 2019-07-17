@@ -16,10 +16,13 @@ class MiddlewareStackEntry
      */
     private $condition;
 
-    public function __construct(MiddlewareCollectionInterface $middlewareCollection, ?HandlerCondition $condition = null)
+    public function __construct(
+        MiddlewareCollectionInterface $middlewareCollection,
+        ?HandlerCondition $condition = null
+    )
     {
         $this->collection = $middlewareCollection;
-        $this->condition            = $condition;
+        $this->condition  = $condition;
     }
 
     public function getCollection(): MiddlewareCollectionInterface

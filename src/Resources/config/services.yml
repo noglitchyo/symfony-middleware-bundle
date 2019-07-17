@@ -22,10 +22,13 @@ services:
   # the ``App\Util\Rot13Transformer`` service will be injected when
   # an ``App\Util\TransformerInterface`` type-hint is detected
   NoGlitchYo\MiddlewareBundle\Middleware\Stack\MiddlewareStackInterface: '@middlewares.stack'
+  NoGlitchYo\MiddlewareBundle\Middleware\Matcher\RequestMatcher: ~
 
   middlewares.stack:
     class: NoGlitchYo\MiddlewareBundle\Middleware\Stack\MiddlewareStack
     configurator: '@NoGlitchYo\MiddlewareBundle\MiddlewareStackConfigurator'
+    arguments:
+      $matcher: '@NoGlitchYo\MiddlewareBundle\Middleware\Matcher\RequestMatcher'
 
   NoGlitchYo\MiddlewareBundle\MiddlewareStackConfigurator:
     arguments:

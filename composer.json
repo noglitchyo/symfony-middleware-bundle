@@ -1,6 +1,6 @@
 {
   "name": "noglitchyo/symfony-middleware-bundle",
-  "description": "Enhance your Symfony application with the power of PSR-15 middleware!",
+  "description": "Introduce PSR-15 middleware dispatcher into Symfony.",
   "type": "symfony-bundle",
   "keywords": [
     "http",
@@ -9,7 +9,10 @@
     "http-message",
     "middleware",
     "handler",
-    "bridge"
+    "bridge",
+    "dispatcher",
+    "stack",
+    "symfony"
   ],
   "require": {
     "php": ">=7.3",
@@ -42,5 +45,10 @@
     "psr-4": {
       "NoGlitchYo\\MiddlewareBundle\\Tests\\": "Tests/"
     }
+  },
+  "scripts": {
+    "phpstan": "phpstan analyse -l max src",
+    "phpcs": "phpcs --standard=PSR2 ./src/",
+    "test": "phpunit -c phpunit.xml.dist"
   }
 }

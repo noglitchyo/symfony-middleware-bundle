@@ -2,15 +2,21 @@
 
 namespace NoGlitchYo\MiddlewareBundle\Middleware\Stack;
 
+use InvalidArgumentException;
 use NoGlitchYo\MiddlewareBundle\Entity\HandlerCondition;
 use NoGlitchYo\MiddlewareBundle\Entity\MiddlewareStackEntry;
 use NoGlitchYo\MiddlewareBundle\Factory\MiddlewareCollectionFactory;
+use NoGlitchYo\MiddlewareBundle\Middleware\Matcher\RequestMatcherInterface;
 use NoGlitchYo\MiddlewareCollectionRequestHandler\MiddlewareCollectionInterface;
 use NoGlitchYo\MiddlewareCollectionRequestHandler\RequestHandler;
+use NoGlitchYo\MiddlewareCollectionRequestHandler\RequestHandlerTrait;
+use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class MiddlewareStack implements MiddlewareStackInterface
 {
+    use RequestHandlerTrait;
+
     /**
      * @var MiddlewareStackEntry[]
      */
@@ -21,22 +27,22 @@ class MiddlewareStack implements MiddlewareStackInterface
      */
     private $middlewareCollectionFactory;
 
-    public function __construct(MiddlewareCollectionFactory $middlewareCollectionFactory)
+    /**
+     * @var RequestHandlerInterface|null
+     */
+    private $defaultHandler = null;
+    /**
+     * @var RequestMatcherInterface
+     */
+    private $matcher;
+
+    public function __construct(
+        MiddlewareCollectionFactory $middlewareCollectionFactory,
+        RequestMatcherInterface $matcher
+    )
     {
         $this->middlewareCollectionFactory = $middlewareCollectionFactory;
-    }
-
-    public function getRequestHandler(Request $request, ?callable $defaultHandler = null): RequestHandler
-    {
-        $finalMiddlewareCollection = $this->middlewareCollectionFactory->create();
-
-        foreach ($this->middlewareStackEntries as $stackEntry) {
-            if ($this->matchRequest($stackEntry, $request)) {
-                $finalMiddlewareCollection->add(new RequestHandler($stackEntry->getCollection()));
-            }
-        }
-
-        return RequestHandler::fromCallable($defaultHandler, $finalMiddlewareCollection);
+        $this->matcher                     = $matcher;
     }
 
     public function add(
@@ -51,23 +57,32 @@ class MiddlewareStack implements MiddlewareStackInterface
         return $middlewareStackEntry;
     }
 
-    private function matchRequest(MiddlewareStackEntry $stackEntry, Request $request): bool
+    public function withDefaultHandler($defaultHandler): MiddlewareStackInterface
     {
-        if ($stackEntry->getCondition() === null) {
-            return true;
+        if (!$defaultHandler instanceof RequestHandlerInterface) {
+            if (!is_callable($defaultHandler)) {
+                throw new InvalidArgumentException(
+                    '$defaultHandler must be a callable or implements ' . RequestHandlerInterface::class
+                );
+            }
+            $defaultHandler = RequestHandler::createRequestHandlerFromCallable($defaultHandler);
         }
 
-        $routeName = $request->get('_route');
-        $routePath = $request->getRequestUri();
+        $this->defaultHandler = $defaultHandler;
 
-        $isTrue = true;
-        if ($stackEntry->getCondition()->getRouteName() !== null) {
-            $isTrue = $isTrue && $routeName === $stackEntry->getCondition()->getRouteName();
-        }
-        if ($stackEntry->getCondition()->getRoutePath() !== null) {
-            $isTrue = $isTrue && $routePath === $stackEntry->getCondition()->getRoutePath();
+        return $this;
+    }
+
+    public function compile(Request $request): RequestHandlerInterface
+    {
+        $finalMiddlewareCollection = $this->middlewareCollectionFactory->create();
+
+        foreach ($this->middlewareStackEntries as $stackEntry) {
+            if ($this->matcher->match($request, $stackEntry)) {
+                $finalMiddlewareCollection->add(new RequestHandler($stackEntry->getCollection()));
+            }
         }
 
-        return $isTrue;
+        return new RequestHandler($finalMiddlewareCollection, $this->defaultHandler);
     }
 }
