@@ -7,7 +7,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class Psr15MiddlewareListener implements EventSubscriberInterface
+class MiddlewareStackInjectorListener implements EventSubscriberInterface
 {
     /**
      * @var MiddlewareStackInterface
@@ -19,6 +19,12 @@ class Psr15MiddlewareListener implements EventSubscriberInterface
         $this->middlewareStackHandler = $middlewareStackHandler;
     }
 
+    /**
+     * Compile the middleware stack with the initial controller as the default handler
+     * and replace the controller with the compiled middleware stack.
+     *
+     * @param ControllerEvent $event
+     */
     public function onKernelController(ControllerEvent $event): void
     {
         $controller = $this->middlewareStackHandler

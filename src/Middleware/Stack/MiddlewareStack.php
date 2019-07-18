@@ -20,7 +20,7 @@ class MiddlewareStack implements MiddlewareStackInterface
     /**
      * @var MiddlewareStackEntry[]
      */
-    private $middlewareStackEntries;
+    private $middlewareStackEntries = [];
 
     /**
      * @var MiddlewareCollectionFactory
@@ -48,13 +48,11 @@ class MiddlewareStack implements MiddlewareStackInterface
     public function add(
         MiddlewareCollectionInterface $collection,
         HandlerCondition $condition = null
-    ): MiddlewareStackEntry
+    ): MiddlewareStackInterface
     {
-        $middlewareStackEntry = new MiddlewareStackEntry($collection, $condition);
+        $this->middlewareStackEntries[] = new MiddlewareStackEntry($collection, $condition);
 
-        $this->middlewareStackEntries[] = $middlewareStackEntry;
-
-        return $middlewareStackEntry;
+        return $this;
     }
 
     public function withDefaultHandler($defaultHandler): MiddlewareStackInterface
@@ -65,7 +63,7 @@ class MiddlewareStack implements MiddlewareStackInterface
                     '$defaultHandler must be a callable or implements ' . RequestHandlerInterface::class
                 );
             }
-            $defaultHandler = RequestHandler::createRequestHandlerFromCallable($defaultHandler);
+            $defaultHandler = static::createRequestHandlerFromCallable($defaultHandler);
         }
 
         $this->defaultHandler = $defaultHandler;

@@ -19,7 +19,7 @@ class HandlerConfiguration implements HandlerConfigurationInterface
     /**
      * @var HandlerCondition[]
      */
-    private $filters = [];
+    private $conditions = [];
 
     public function setIdentifier(string $identifier): HandlerConfigurationInterface
     {
@@ -47,13 +47,13 @@ class HandlerConfiguration implements HandlerConfigurationInterface
 
     public function addCondition(HandlerCondition $filter): HandlerConfigurationInterface
     {
-        $this->filters[] = $filter;
+        $this->conditions[] = $filter;
 
         return $this;
     }
 
     public function getConditions(): array
     {
-        return $this->filters;
+        return $this->conditions;
     }
 }

@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class NoGlitchYoMiddlewareExtension extends Extension
 {
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $mainConfig = $this->getConfiguration($configs, $container);
 
@@ -35,7 +35,7 @@ class NoGlitchYoMiddlewareExtension extends Extension
         }
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return 'middlewares';
     }

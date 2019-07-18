@@ -2,7 +2,6 @@
 
 namespace NoGlitchYo\MiddlewareBundle\DependencyInjection\Compiler;
 
-use LogicException;
 use NoGlitchYo\MiddlewareBundle\Entity\HandlerCondition;
 use NoGlitchYo\MiddlewareBundle\Entity\HandlerConfiguration;
 use RuntimeException;
@@ -20,10 +19,72 @@ class AddCollectionPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
+        if ($container->getParameter('middlewares.handlers')) {
+            $collections = $this->getTaggedCollections($container);
+
+            foreach ($container->getParameter('middlewares.handlers') as $handlerIdentifier => $handlerConfiguration) {
+                if (!isset($collections[$this->getHandlerCollectionName($handlerConfiguration)])) {
+                    throw new RuntimeException(
+                        sprintf(
+                            'Collection with service identifier `%s` is not defined.',
+                            $this->getHandlerCollectionName($handlerConfiguration)
+                        )
+                    );
+                }
+
+                $handlerDefinition = $container
+                    ->register($this->getHandlerServiceId($handlerIdentifier), HandlerConfiguration::class)
+                    ->addTag(static::HANDLER_CONFIGURATION_TAG)
+                    ->addMethodCall('setIdentifier', [$handlerIdentifier])
+                    ->addMethodCall(
+                        'setCollection',
+                        [$collections[$this->getHandlerCollectionName($handlerConfiguration)]]
+                    );
+
+                $condition = $this->getHandlerCondition($handlerConfiguration);
+
+                if ($condition) {
+                    $container
+                        ->register($this->getHandlerConditionServiceId($handlerIdentifier), HandlerCondition::class)
+                        ->addMethodCall('setRoutePath', [$condition['routePath'] ?? null])
+                        ->addMethodCall('setRouteName', [$condition['routeName'] ?? null])
+                        ->addMethodCall('setController', [$condition['controller'] ?? null]);
+
+                    $handlerDefinition->addMethodCall(
+                        'addCondition',
+                        [new Reference($this->getHandlerConditionServiceId($handlerIdentifier))]
+                    );
+                }
+            }
+        }
+    }
+
+    private function getHandlerConditionServiceId(string $handlerIdentifier): string
+    {
+        return sprintf('middlewares.handler_configuration.%s.filter', $handlerIdentifier);
+    }
+
+    private function getHandlerServiceId(string $handlerIdentifier): string
+    {
+        return sprintf('middlewares.handler_configuration.%s', $handlerIdentifier);
+    }
+
+    private function getHandlerCollectionName(array $handlerConfiguration): string
+    {
+        return $handlerConfiguration['collection'];
+    }
+
+    private function getHandlerCondition(array $handlerConfiguration): ?array
+    {
+        return $handlerConfiguration['filter'] ?? null;
+    }
+
+    private function getTaggedCollections(ContainerBuilder $container): array
+    {
         $collections = $this->findAndSortTaggedServices(static::COLLECTION_TAG, $container);
         if (!$collections) {
-            throw new LogicException(
-                'No middleware collections found. You need to tag at least one with "middlewares.collection".'
+            throw new RuntimeException(
+                'No middleware collections found. At least one collection is required to be tag with "middlewares.collection".'
             );
         }
 
@@ -33,36 +94,6 @@ class AddCollectionPass implements CompilerPassInterface
             $collectionReferences[$serviceId] = $collection;
         }
 
-        $handlersConfiguration = $container->getParameter('middlewares.handlers');
-
-        foreach ($handlersConfiguration as $handlerIdentifier => $handlerConfiguration) {
-            $handlerConfigurationServiceId = sprintf('middlewares.handler_configuration.%s', $handlerIdentifier);
-
-            if (!isset($collectionReferences[$handlerConfiguration['collection']])) {
-                throw new RuntimeException(
-                    sprintf(
-                        'Collection with service identifier `%s` is not defined.',
-                        $handlerConfiguration['collection']
-                    )
-                );
-            }
-
-            $handlerDefinition = $container->register($handlerConfigurationServiceId, HandlerConfiguration::class)
-                ->addTag(static::HANDLER_CONFIGURATION_TAG)
-                ->addMethodCall('setIdentifier', [$handlerIdentifier])
-                ->addMethodCall('setCollection', [$collectionReferences[$handlerConfiguration['collection']]]);
-
-            $condition = $handlerConfiguration['filter'] ?? null;
-
-            if ($condition) {
-                $handlerFilterServiceId = sprintf('middlewares.handler_configuration_filter.%s', $handlerIdentifier);
-                $container->register($handlerFilterServiceId, HandlerCondition::class)
-                    ->addMethodCall('setRoutePath', [$condition['routePath'] ?? null])
-                    ->addMethodCall('setRouteName', [$condition['routeName'] ?? null])
-                    ->addMethodCall('setController', [$condition['controller'] ?? null]);
-
-                $handlerDefinition->addMethodCall('addCondition', [new Reference($handlerFilterServiceId)]);
-            }
-        }
+        return $collectionReferences;
     }
 }

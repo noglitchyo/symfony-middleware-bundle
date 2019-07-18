@@ -56,7 +56,7 @@ which gives the ability to execute a collection of middlewares as if it was a si
   # Let's define some middlewares that we want to use.
   App\Middleware\SecurityMiddleware: ~
   App\Middleware\CorsMiddleware: ~
-  App\Middleware\RouterMiddleware: ~
+  App\Middleware\RouterMiddleware: ~*
 
   middleware_collections.default:
     class: NoGlitchYo\MiddlewareCollectionRequestHandler\Collection\MiddlewareCollectionInterface 

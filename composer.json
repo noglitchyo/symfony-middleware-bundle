@@ -23,8 +23,7 @@
     "symfony/http-kernel": "^4.3",
     "symfony/dependency-injection": "^4.3",
     "symfony/config": "^4.3",
-    "noglitchyo/middleware-collection-request-handler": "*",
-    "phpunit/phpunit": "^8.2"
+    "noglitchyo/middleware-collection-request-handler": "*"
   },
   "provide": {
     "psr/http-server-handler-implementation": "1.0",
@@ -50,5 +49,11 @@
     "phpstan": "phpstan analyse -l max src",
     "phpcs": "phpcs --standard=PSR2 ./src/",
     "test": "phpunit -c phpunit.xml.dist"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.1",
+    "squizlabs/php_codesniffer": "*",
+    "phpstan/phpstan": "^0.11.8",
+    "nyholm/psr7": "^1.1"
   }
 }

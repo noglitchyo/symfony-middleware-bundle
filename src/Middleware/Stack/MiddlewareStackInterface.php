@@ -39,10 +39,10 @@ interface MiddlewareStackInterface
      *
      * @param MiddlewareCollectionInterface $collection
      * @param HandlerCondition|null $condition
-     * @return MiddlewareStackEntry
+     * @return MiddlewareStackInterface
      */
     public function add(
         MiddlewareCollectionInterface $collection,
         HandlerCondition $condition = null
-    ): MiddlewareStackEntry;
+    ): MiddlewareStackInterface;
 }
