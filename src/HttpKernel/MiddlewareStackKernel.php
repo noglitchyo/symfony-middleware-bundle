@@ -1,4 +1,27 @@
 <?php declare(strict_types=1);
+/**
+ * MIT License
+ *
+ * Copyright (c) 2019 Maxime Elomari
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 namespace NoGlitchYo\MiddlewareBundle\HttpKernel;
 
@@ -7,8 +30,6 @@ use NoGlitchYo\MiddlewareBundle\Middleware\Stack\MiddlewareStackInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
-use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,18 +89,19 @@ class MiddlewareStackKernel implements HttpKernelInterface
 
     private function getHttpKernelAsRequestHandler()
     {
-        return new class($this->httpKernel, $this->httpFoundationFactory, $this->psrHttpFactory) implements RequestHandlerInterface
+        return new class($this->httpKernel, $this->httpFoundationFactory, $this->psrHttpFactory)
+            implements RequestHandlerInterface
         {
             /**
              * @var HttpKernelInterface
              */
             private $httpKernel;
             /**
-             * @var HttpFoundationFactory
+             * @var HttpFoundationFactoryInterface
              */
             private $foundationFactory;
             /**
-             * @var PsrHttpFactory
+             * @var HttpMessageFactoryInterface
              */
             private $psrHttpFactory;
 

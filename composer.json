@@ -46,8 +46,8 @@
     }
   },
   "scripts": {
-    "phpstan": "phpstan analyse -l max ./",
-    "phpcs": "phpcs --standard=PSR2 ./",
+    "phpstan": "phpstan analyse -l max src",
+    "phpcs": "phpcs --standard=PSR2 ./src",
     "test": "phpunit -c phpunit.xml.dist"
   },
   "require-dev": {
