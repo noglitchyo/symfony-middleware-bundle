@@ -1,6 +1,6 @@
 {
   "name": "noglitchyo/symfony-middleware-bundle",
-  "description": "Introduce PSR-15 middleware dispatcher into Symfony.",
+  "description": "Introduce PSR-15 middleware collection dispatcher into Symfony.",
   "type": "symfony-bundle",
   "keywords": [
     "http",
@@ -37,8 +37,11 @@
   ],
   "autoload": {
     "psr-4": {
-      "NoGlitchYo\\MiddlewareBundle\\": "src/"
-    }
+      "NoGlitchYo\\MiddlewareBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
   },
   "autoload-dev": {
     "psr-4": {
@@ -46,8 +49,8 @@
     }
   },
   "scripts": {
-    "phpstan": "phpstan analyse -l max src",
-    "phpcs": "phpcs --standard=PSR2 ./src/",
+    "phpstan": "phpstan analyse -l max ./",
+    "phpcs": "phpcs --standard=PSR2 ./",
     "test": "phpunit -c phpunit.xml.dist"
   },
   "require-dev": {

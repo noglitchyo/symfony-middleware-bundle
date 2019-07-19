@@ -88,7 +88,7 @@ middlewares:
   handlers:
     default: # Name of your handler configuration
       collection: default.middleware_collection # should be the collection class name / service name defined in services.yaml
-      filter: # Filter is optional, if not provided the collection will be executed for every requests
+      condition: # Condition is optional, if not provided the collection will be executed for every requests
         routePath: '/path/test/1'
         routeName: 'myCustomRouteName'
 ```
