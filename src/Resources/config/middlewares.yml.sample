@@ -1,0 +1,7 @@
+middlewares:
+  handlers:
+    default:
+      filter: # By default, middleware will be plugged on every actions.
+        #routeName: "*"
+        #routePath: "*"
+      collection: # should be the collection class name / service name

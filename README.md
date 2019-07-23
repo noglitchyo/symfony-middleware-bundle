@@ -112,9 +112,7 @@ which gives the ability to execute a collection of middlewares as if it was a si
         # NoGlitchYo\MiddlewareCollectionRequestHandler\Collection\SplQueueMiddlewareCollection
         # NoGlitchYo\MiddlewareCollectionRequestHandler\Collection\SplStackMiddlewareCollection
     arguments:
-      - '@App\Middleware\EncoderMiddleware'
-        '@App\Middleware\RouterMiddleware'
-        '@App\Middleware\EncoderMiddleware'
+      - ['@App\Middleware\EncoderMiddleware', '@App\Middleware\RouterMiddleware', '@App\Middleware\EncoderMiddleware']
     tags: ['middlewares.collection'] # Tag it! So the collection can be picked up.
 ```
 
