@@ -42,7 +42,7 @@ class AddCollectionPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
-        if ($container->getParameter('middlewares.handlers')) {
+        if ($container->hasParameter('middlewares.handlers')) {
             $collections = $this->getTaggedCollections($container);
 
             foreach ($container->getParameter('middlewares.handlers') as $handlerIdentifier => $handlerConfiguration) {
